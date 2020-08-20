@@ -178,6 +178,3 @@ exports.deletePlace = async ( req, res ) => {
         });
     }
 }
-exports.insertMasivePlaces = (req, res) => {
-    console.log(req.files.file)
-}
