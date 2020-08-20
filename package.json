@@ -1,28 +1,4 @@
-<<<<<<< HEAD
-{
-  "name": "back",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "start": "node ./index.js",
-    "dev": "nodemon ./index.js"
-  },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "cors": "^2.8.5",
-    "dotenv": "^8.2.0",
-    "epayco-sdk-node": "^1.0.1",
-    "express": "^4.17.1",
-    "express-fileupload": "^1.1.6",
-    "express-validator": "^6.4.0",
-    "json-web-token": "^3.2.0",
-    "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.8.11"
-  }
-}
-=======
+
 {
   "name": "back",
   "version": "1.0.0",
@@ -46,4 +22,3 @@
     "mongoose": "^5.8.11"
   }
 }
->>>>>>> de82140dca08ba22227881f57a005d47329975dc
