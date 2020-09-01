@@ -4,9 +4,7 @@ module.exports = async function (req, res, next) {
     try {
         const token = req.header('x-auth-token');
         const error = new Error;
-        error.name = "internal";
         if(!token) {
-            error.message = "Token not found";
             throw error;
         }
         const encryption = jwt.verify(token, process.env.KEY_SECRET);
@@ -20,7 +18,7 @@ module.exports = async function (req, res, next) {
     } catch (error) {
         res.status(500).json({
             status: false,
-            msg: error.name === "internal"? error.message : "token not valide"
+            msg: "token not valide"
         });
     }
 }

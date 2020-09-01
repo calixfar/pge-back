@@ -1,18 +1,13 @@
 const User = require('./../models/user');
 const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator');
+const { convertErrorExpressValidator } = require('../functions/general');
 exports.authUser = async (req, res) => {
     const { email, password } = req.body;
     const generalError = new Error();
     generalError.name = "internal";
     try {
-        const errors = validationResult(req);
-        if(!errors.isEmpty()) {
-            res.status(400).json({
-                validate: false,
-                errors: errors.array()
-            });
-        }
+        convertErrorExpressValidator(validationResult(req).array());
         const searchUser = await User.findOne({email});
         console.log(searchUser);
         if(searchUser === null) {
@@ -35,10 +30,9 @@ exports.authUser = async (req, res) => {
             res.json({token});
         })
     } catch (error) {
-        console.log(error);
         res.status(500).json({
             status: false,
-            msg: generalError.name === "internal"? generalError.message : "error al ingresar"
+            msg: error.name === "internal"? error.message : "error al ingresar"
         })
     }
 }
@@ -47,7 +41,7 @@ exports.getUserAuth = async (req, res) => {
         // const user = await User.findById(req.usuario.id).select('-password');
         res.json({user: req.user});
     } catch (error) {
-        console.log(error)
+        console.log('error get', error)
         res.status(500).json({
             status: false,
             msg: "Hubo un error"

@@ -41,6 +41,7 @@ exports.getWorks = async (req, res) => {
         
         let params = {status: true};
         if( type_user === 'FIELD_MANAGER' ) params.team = user.team_id;
+        if( type_user === 'EMPLOYEE' ) params.responsable = user._id;
         let works = await Work.find(params)
         .populate('responsable', '-password -works -assign_team')
         .populate('place')
