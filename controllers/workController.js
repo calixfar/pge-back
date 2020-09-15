@@ -37,7 +37,6 @@ exports.getWorks = async (req, res) => {
     try {
         const { user } = req;
         const { type_user } = user;
-        validateTypeUser(type_user, ["ADMIN", "FIELD_MANAGER"]);
         
         let params = {status: true};
         if( type_user === 'FIELD_MANAGER' ) params.team = user.team_id;
@@ -46,12 +45,15 @@ exports.getWorks = async (req, res) => {
         .populate('responsable', '-password -works -assign_team')
         .populate('place')
         .populate('team', '-members');
+
         res.json({
             status: true,
             works
-        })
+        });
+        if( type_user === 'EMPLOYEE' ) await changeStatusViewsWorks(works);
 
     } catch (error) {
+        console.log(error);
         res.status(400).json({
             status: false,
             msg: 'No se pudo obtener todas las tareas'
@@ -136,4 +138,13 @@ exports.deleteWork = async (req, res) => {
             msg: error.name === 'No modificable' ? error.message : defaultMsg
         });
     }
+}
+
+const changeStatusViewsWorks = (works) => {
+    works.forEach( async ({ _id, status_work }) => {
+
+        if( status_work == 'Sin_revisar' ) await Work.findOneAndUpdate({_id}, {status_work: 'Vista'});
+    });
+    return true;
+
 }

@@ -5,10 +5,11 @@ const authController = require('../controllers/authController');
 const teamController = require('../controllers/teamController');
 const placeController = require('../controllers/placeController');
 const workController = require('../controllers/workController');
+const activityController = require('../controllers/activityController');
 const auth = require('../middleware/auth');
 const router = express.Router();
 
-module.exports = () => {
+module.exports = (io) => {
     //USERS
     router.post('/api/v1/user', auth, userController.insertUser);
     router.get('/api/v1/user', auth, userController.getUsers);
@@ -43,11 +44,16 @@ module.exports = () => {
     router.delete('/api/v1/place/:id', auth, placeController.deletePlace);
     router.post('/api/v1/place/file', auth, placeController.masiveInsert);
     //WORK
-    router.post('/api/v1/work', auth, workController.insertWork);
+    router.post('/api/v1/work', auth, (req, res) => workController.insertWork(req, res, io) );
     router.get('/api/v1/work', auth, workController.getWorks);
     router.get('/api/v1/work/:id', auth, workController.getWork);
     router.put('/api/v1/work/:id', auth, workController.updateWork);
     router.delete('/api/v1/work/:id', auth, workController.deleteWork);
-
+    //ACTIVITY
+    router.post('/api/v1/activity', auth, activityController.insertActivity);
+    router.get('/api/v1/activity', auth, activityController.getActivities);
+    router.get('/api/v1/activity/:id', auth, activityController.getActivityById);
+    router.put('/api/v1/activity/:id', auth, activityController.updateActivityById);
+    router.delete('/api/v1/activity/:id', auth, activityController.deleteActivityById);
     return router;
 }
