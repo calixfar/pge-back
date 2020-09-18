@@ -4,19 +4,19 @@ const { validateTypeUser } = require('../functions/user');
 exports.insertActivity = async (req, res) => {
     try {
         const { user } = req;
-        validateTypeUser(user.type_user, ["ADMIN"]);
+        validateTypeUser(user.type_user, ["ADMIN","FIELD_MANAGER"]);
+        console.log(req.body);
+        const { name } = req.body;
+        if( !name ) throw Error('Por favor ingresa un nombre para la actividad');
         
-        const { type } = req.body;
-        if( !type ) throw Error('Por favor existe un tipo de tarea');
+        let searchActivityByName = await Activity.findOne({name});
+        if( searchActivityByName ) throw Error('Ya existe una actividad con este nombre');
 
-        let searchActivityByType = await Activity.findOne({type});
-        if( searchActivityByType ) throw Error('Ya existe un tarea con este tipo');
-
-        const newActivity = Activity(req.body);
+        const newActivity = new Activity(req.body);
         await newActivity.save();
         res.json({
             status: true,
-            msg: 'Actividades creadas con éxito'
+            msg: 'Actividad creada con éxito'
         })
 
     } catch (error) {
@@ -26,97 +26,81 @@ exports.insertActivity = async (req, res) => {
         });
     }
 }
-exports.getActivities = async ( req, res ) => {
+exports.getActivities = async (req, res) => {
     try {
         const { user } = req;
-        validateTypeUser(user.type_user, ["ADMIN"]);
+        validateTypeUser(user.type_user, ["ADMIN","FIELD_MANAGER"]);
 
-        let activities = await Activity.find();
-
+        const { params: { typeWorkId } } = req;
+        
+        let activities = await Activity.find({typeWork: typeWorkId});
+        
+        if( !activities ) activities = [];
+        
+        console.log('request', activities);
         res.json({
             activities
         })
-        
     } catch (error) {
         console.log(error);
         res.status(400).json({
-            msg: error.message ? error.message : 'Ocurrio un error al obtener las actividades'
+            msg: error.message ? error.message : 'Ocurrio un error al obtener todas las actividades'
         });
     }
 }
-exports.getActivityById = async ( req, res ) => {
+exports.updateActivity = async ( req, res ) => {
     try {
         const { user } = req;
-        validateTypeUser(user.type_user, ["ADMIN"]);
+        validateTypeUser(user.type_user, ["ADMIN","FIELD_MANAGER"]);
 
         const { params: { id } } = req;
 
-        let activity = await Activity.findOne({ _id: id });
-
-        if( !activity ) throw Error('No existe una actividad con este id');
-
-        res.json({
-            activity
-        });
-        
-    } catch (error) {
-        console.log(error);
-        res.status(400).json({
-            msg: error.message ? error.message : 'Ocurrio un error al obtener la actividade'
-        });
-    }
-}
-exports.updateActivityById = async ( req, res ) => {
-    try {
-        const { user } = req;
-        validateTypeUser(user.type_user, ["ADMIN"]);
-
-        const { params: { id } } = req;
 
         let searchActivity = await Activity.findOne({ _id: id });
 
-        if( !searchActivity ) throw Error('No existe una actividad con este id');
+        if( !searchActivity ) throw Error('No existe un tipo de trabajo con este id');
 
-        const { type } = req.body;
+        const { name } = req.body;
 
-        if( type && type !== searchActivity.type ) {
-            
-            let searchActivityByType = await Activity.findOne({type});
+        if( name && name !== searchActivity.type ) {
+            name
+            let searchActivityByName = await Activity.findOne({name});
 
-            if( searchActivityByType ) throw Error('Existe una actividad con este tipo');
+            if( searchActivityByName) throw Error('Ya existe una actividad con este nombre');
         }
+
 
         await Activity.findOneAndUpdate({_id: id}, req.body);
 
         res.json({
-            msg: 'Se actualizo la actividad con éxito'
+            status: true,
+            msg: 'Actividad actualizada con éxito'
         })
-
-
+        
     } catch (error) {
         console.log(error);
         res.status(400).json({
             msg: error.message ? error.message : 'Ocurrio un error al actualizar la actividad'
         });
-    }   
+    }
 }
-exports.deleteActivityById = async ( req, res ) => {
+exports.deleteActivity = async ( req, res ) => {
     try {
-        validateTypeUser(user.type_user, ["ADMIN"]);
+        const { user } = req;
+        validateTypeUser(user.type_user, ["ADMIN","FIELD_MANAGER"]);
 
         const { params: { id } } = req;
 
-        await Activity.findOneAndDelete({_id: id}, req.body);
+        await Activity.findOneAndDelete({_id: id});
 
         res.json({
             msg: 'Se elimino la actividad con éxito'
         })
-
 
     } catch (error) {
         console.log(error);
         res.status(400).json({
             msg: error.message ? error.message : 'Ocurrio un error al eliminar la actividad'
         });
-    }   
+    }
 }

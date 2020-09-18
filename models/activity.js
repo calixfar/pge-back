@@ -1,18 +1,15 @@
 const mongoose = require('mongoose');
 
 const activitySchema = mongoose.Schema({
-    type: {
-        required: true,
-        trim: true,
-        type: String
+    typeWork: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'TypesWork'
     },
-    activities: {
-        type: [{
-            activity: {
-                type: String
-            }
-        }]
+    name: String,
+    status: {
+        type: Boolean,
+        default: true
     }
 });
 
-module.exports = mongoose.model('activity', activitySchema);
+module.exports = mongoose.model('Activity', activitySchema);
