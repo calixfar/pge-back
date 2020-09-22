@@ -18,7 +18,6 @@ exports.insertActivity = async (req, res) => {
             status: true,
             msg: 'Actividad creada con éxito'
         })
-
     } catch (error) {
         console.log(error);
         res.status(400).json({
