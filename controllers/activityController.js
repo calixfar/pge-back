@@ -67,8 +67,6 @@ exports.updateActivity = async ( req, res ) => {
 
             if( searchActivityByName) throw Error('Ya existe una actividad con este nombre');
         }
-
-
         await Activity.findOneAndUpdate({_id: id}, req.body);
 
         res.json({
