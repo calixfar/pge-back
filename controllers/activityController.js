@@ -6,10 +6,10 @@ exports.insertActivity = async (req, res) => {
         const { user } = req;
         validateTypeUser(user.type_user, ["ADMIN","FIELD_MANAGER"]);
         console.log(req.body);
-        const { name } = req.body;
-        if( !name ) throw Error('Por favor ingresa un nombre para la actividad');
+        const { name, typeWork } = req.body;
+        if( !name ) throw Error('Por favor ingresa un nombre para la actividad2');
         
-        let searchActivityByName = await Activity.findOne({name});
+        let searchActivityByName = await Activity.findOne({name, typeWork});
         if( searchActivityByName ) throw Error('Ya existe una actividad con este nombre');
 
         const newActivity = new Activity(req.body);
@@ -55,16 +55,15 @@ exports.updateActivity = async ( req, res ) => {
 
         const { params: { id } } = req;
 
-
+        console.log('entro put', id);
         let searchActivity = await Activity.findOne({ _id: id });
 
-        if( !searchActivity ) throw Error('No existe un tipo de trabajo con este id');
+        if( !searchActivity ) throw Error('No existe una actividad con este id');
 
         const { name } = req.body;
 
-        if( name && name !== searchActivity.type ) {
-            name
-            let searchActivityByName = await Activity.findOne({name});
+        if( name && name !== searchActivity.name ) {
+            let searchActivityByName = await Activity.findOne({name, typeWork: searchActivity.typeWork});
 
             if( searchActivityByName) throw Error('Ya existe una actividad con este nombre');
         }
