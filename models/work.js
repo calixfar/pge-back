@@ -16,15 +16,15 @@ const workSchema = new mongoose.Schema({
     },
     type: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Activity'
+        ref: 'TypesWork'
     },
     execution_date: Date,
     id_base_station: String,
     priority: String,
     status_work: {
         type: String,
-        enum: ['Sin_revisar', 'Vista', 'Problema', 'Navegacion', 'Inicio_tarea', 'Culminada'],
-        default: 'Sin revisar'
+        enum: ['Sin_revisar', 'Vista', 'Problema', 'Navegacion', 'Inicio_tarea', 'Culminada', 'Pendiente'],
+        default: 'Sin_revisar'
     },
     commentary: {
         type: String,

@@ -70,7 +70,9 @@ exports.getTeam = async (req, res) => {
         const { user } = req;
         validateTypeUser(user.type_user, ["ADMIN", "FIELD_MANAGER"]);
         const { id } = req.params;
-        const searchTeam = await Team.findById(id);
+        const searchTeam = await Team.findById(id)
+        .populate('field_manager', '-password -works')
+        .populate('members.user', '-password');;
         if(searchTeam === null) {
             const error = new Error();
             error.name = "internal";

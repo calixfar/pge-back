@@ -96,6 +96,34 @@ exports.getPlaces = async( req, res ) => {
         })
     }
 }
+exports.getPlacesBySearch = async( req, res ) => {
+    try {
+        const { user } = req;
+        validateTypeUser(user.type_user, ["ADMIN", "FIELD_MANAGER"]);
+
+        let { params: { search } } = req;
+
+        let query = {
+            status: true
+        };
+
+        if( search.toUpperCase() !== 'ALL' && search !== '' ) {
+            let regex = new RegExp(`^${search.trim()}`, 'i');
+            query.name = regex;
+        }
+        const places = await Place.find(query).select('-status');
+
+        res.json({
+            status: true,
+            places
+        })
+    } catch (error) {
+        res.status(500).json({
+            status: false,
+            msg: error.name === "internal"? error.message : "Error al obtener los lugares"
+        })
+    }
+}
 exports.getPlace = async (req, res) => {
     try { 
         const { user } = req;

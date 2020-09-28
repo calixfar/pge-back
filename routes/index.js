@@ -7,6 +7,7 @@ const placeController = require('../controllers/placeController');
 const workController = require('../controllers/workController');
 const typeWorkController = require('../controllers/typeWorkController');
 const activityController = require('../controllers/activityController');
+const workActivityController = require('../controllers/workActivtyController');
 const auth = require('../middleware/auth');
 const router = express.Router();
 
@@ -40,6 +41,7 @@ module.exports = (io) => {
     ], placeController.insertPlace);
     router.post('/api/v1/places', auth, placeController.masiveInsert);
     router.get('/api/v1/place', auth, placeController.getPlaces);
+    router.get('/api/v1/place-search/:search', auth, placeController.getPlacesBySearch);
     router.get('/api/v1/place/:id', auth, placeController.getPlace);
     router.put('/api/v1/place/:id', auth, placeController.updatePlace);
     router.delete('/api/v1/place/:id', auth, placeController.deletePlace);
@@ -47,6 +49,8 @@ module.exports = (io) => {
     //WORK
     router.post('/api/v1/work', auth, (req, res) => workController.insertWork(req, res, io) );
     router.get('/api/v1/work', auth, workController.getWorks);
+    router.get('/api/v1/work-search/:search', auth, workController.getWorksBySearch);
+    router.get('/api/v1/work-count/:filterZone', auth, workController.getCountWorks);
     router.get('/api/v1/work/:id', auth, workController.getWork);
     router.put('/api/v1/work/:id', auth, workController.updateWork);
     router.delete('/api/v1/work/:id', auth, workController.deleteWork);
@@ -62,5 +66,9 @@ module.exports = (io) => {
     // router.get('/api/v1/activity/:id', auth, activityController.g);
     router.put('/api/v1/activity/:id', auth, activityController.updateActivity);
     router.delete('/api/v1/activity/:id', auth, activityController.deleteActivity);
+    //WORK ACTIVITY
+    router.get('/api/v1/work-activity/:workId', auth, workActivityController.getActivitiesByWork);
+    // router.get('/api/v1/activity/:id', auth, activityController.g);
+    router.put('/api/v1/work-activity/:id', auth, workActivityController.updateWorkActivity);
     return router;
 }

@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const { zones } = require('../types/zone');
 const PlaceShema = mongoose.Schema({
     code_site: {
         type: String,
@@ -43,6 +43,10 @@ const PlaceShema = mongoose.Schema({
     type_station: {
         type: String,
         trim: true
+    },
+    zone: {
+        type: String,
+        enum: zones
     },
     status: {
         type: Boolean,

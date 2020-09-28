@@ -36,7 +36,6 @@ exports.getActivities = async (req, res) => {
         
         if( !activities ) activities = [];
         
-        console.log('request', activities);
         res.json({
             activities
         })
@@ -54,7 +53,6 @@ exports.updateActivity = async ( req, res ) => {
 
         const { params: { id } } = req;
 
-        console.log('entro put', id);
         let searchActivity = await Activity.findOne({ _id: id });
 
         if( !searchActivity ) throw Error('No existe una actividad con este id');
