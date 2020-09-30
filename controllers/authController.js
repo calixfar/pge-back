@@ -21,8 +21,8 @@ exports.authUser = async (req, res) => {
         const payload = {
             user: searchUser._id
         }
-        //expired in a week
-        jwt.sign(payload, process.env.KEY_SECRET, {expiresIn: 3600 * 24 * 7}, (error, token) => {
+        //expired in a month
+        jwt.sign(payload, process.env.KEY_SECRET, {expiresIn: 3600 * 24 * 30}, (error, token) => {
             if(error) {
                 generalError.message = "token no valido";
                 throw generalError;
