@@ -11,7 +11,7 @@ exports.authUser = async (req, res) => {
         const searchUser = await User.findOne({email});
         console.log(searchUser);
         if(searchUser === null) {
-            generalError.message = "Email o contraseña incorrectos1";
+            generalError.message = "Email o contraseña incorrectos";
             throw generalError;
         }
         if(searchUser.password !== password) {

@@ -22,7 +22,7 @@ module.exports = (io) => {
     router.delete('/api/v1/user/:id', auth, userController.deleteUser);
     //AUTH
     router.post('/api/v1/auth', [
-        check('email', 'Email no valido').isEmail(),
+        check('email', 'Email no válido').isEmail(),
         check('password', 'El password debe tener minimo 6 caracteres').isLength({min: 6})
     ], authController.authUser);
     router.get('/api/v1/auth', auth, authController.getUserAuth);
