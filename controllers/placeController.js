@@ -162,7 +162,7 @@ exports.updatePlace = async ( req, res ) => {
             error.message = "El lugar no se encuentra registrado";
             throw error;
         }
-        if(code_site ) {
+        if( code_site !== searchPlace.code_site ) {
             const searchPlaceByCode = await Place.findOne({code_site, status: true});
             if(searchPlaceByCode !== null) {
                 error.message = "Ya hay un lugar registrado con este código";
