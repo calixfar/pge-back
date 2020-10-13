@@ -1,0 +1,9 @@
+const CREATE_USER = 'CREATE_USER';
+const UPDATE_USER = 'UPDATE_USER';
+const DELETE_USER = 'DELETE_USER';
+
+module.exports = {
+    CREATE_USER,
+    UPDATE_USER,
+    DELETE_USER
+}

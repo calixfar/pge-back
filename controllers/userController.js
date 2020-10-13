@@ -3,6 +3,11 @@ const Team = require('../models/team');
 const { validationResult, param } = require('express-validator');
 const { validateTypeUser } = require('../functions/user');
 const team = require('../models/team');
+const Notification = require('../models/notification');
+const { CREATE_USER,
+    UPDATE_USER,
+    DELETE_USER 
+} = require('../types/notification');
 exports.insertUser = async (req, res) => {
     const errors = validationResult(req);
     if(!errors.isEmpty()) {
@@ -40,11 +45,21 @@ exports.insertUser = async (req, res) => {
             await Team.findOneAndUpdate({_id: team_id}, objTeam, {new: true});
         }
         await newUser.save();
+
+        await Notification.create({
+            type: CREATE_USER,
+            route: `/usuario/${ newUser._id }`,
+            triggeredUser: user._id,
+            alteredredUser: newUser._id,
+            action: `creo el usuario ${newUser.name}`
+        });
+
         res.json({
             status: true,
             user: newUser
         });
     } catch (error) {
+        console.log(error);
         res.status(500).json({
             status: false,
             msg: error.message ? error.message : "Error al registrar"
@@ -129,6 +144,15 @@ exports.updateUser = async ( req, res ) => {
             throw error;
         }
         const newUser = await User.findOneAndUpdate({_id: id}, req.body, {new: true});
+
+        await Notification.create({
+            type: UPDATE_USER,
+            route: `/usuario/${ newUser._id }`,
+            triggeredUser: user._id,
+            alteredredUser: newUser._id,
+            action: `el usuario ${searchUser.name}`
+
+        });
         res.json({
             status: true,
             user: newUser
@@ -154,6 +178,13 @@ exports.deleteUser = async ( req, res ) => {
             throw error;
         }
         await User.findOneAndDelete({_id: id});
+
+        await Notification.create({
+            type: DELETE_USER,
+            triggeredUser: user._id,
+            action: `el usuario ${searchUser.name}`
+
+        });
         res.json({
             status: true,
             msg: "El usuario fue eliminado con éxito"
@@ -164,4 +195,5 @@ exports.deleteUser = async ( req, res ) => {
             msg: error.name === "internal"? error.message : "Error al actualizar los datos del usuario"
         });
     }
+
 }

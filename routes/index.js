@@ -8,6 +8,7 @@ const workController = require('../controllers/workController');
 const typeWorkController = require('../controllers/typeWorkController');
 const activityController = require('../controllers/activityController');
 const workActivityController = require('../controllers/workActivtyController');
+const notificationController = require('../controllers/notificationController');
 const auth = require('../middleware/auth');
 const router = express.Router();
 
@@ -70,5 +71,7 @@ module.exports = (io) => {
     router.get('/api/v1/work-activity/:workId', auth, workActivityController.getActivitiesByWork);
     // router.get('/api/v1/activity/:id', auth, activityController.g);
     router.put('/api/v1/work-activity/:id', auth, workActivityController.updateWorkActivity);
+    router.get('/api/v1/notification', auth, notificationController.getNotifications);
+    // NOTIFICATION
     return router;
 }

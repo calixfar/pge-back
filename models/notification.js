@@ -9,9 +9,18 @@ const NotificationSchema = mongoose.Schema({
         type: String,
         trim: true
     },
-    user: {
+    triggeredUser: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
+    },
+    alteredUser: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        default: null
+    },
+    route: {
+        type: String,
+        default: null
     },
     createAt: {
         type: Date,
@@ -19,4 +28,16 @@ const NotificationSchema = mongoose.Schema({
     } 
 });
 
-module.exports = mongoose.model('Notification', NotificationSchema);
+NotificationSchema.statics.create = async (data) => {
+    try {
+        await Notification(data).save();
+        return true;
+    } catch (error) {
+        console.log(error);
+        return false;
+    }
+}
+
+const Notification = mongoose.model('Notification', NotificationSchema)
+
+module.exports = Notification;
