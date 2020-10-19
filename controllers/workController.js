@@ -14,7 +14,6 @@ exports.insertWork = async (req, res) => {
         let new_body = req.body;
         new_body.creator = user._id;
         new_body.execution_date = new Date(new_body.execution_date);
-        console.log(new_body);
         const newWork =  Work(new_body);
         const activitiesByTypeWork = await Activity.find({ typeWork: newWork.type });
 
@@ -55,6 +54,7 @@ exports.getWorks = async (req, res) => {
         let works = await Work.find(params)
         .populate('responsable', '-password -works -assign_team')
         .populate('place')
+        .populate('type')
         .populate('team', '-members');
 
         res.json({

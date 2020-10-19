@@ -5,6 +5,13 @@ const cors = require('cors');
 const fileUpload = require('express-fileupload');
 const socketIo = require("socket.io");
 const http = require("http");
+const { filterObjByProperty } = require('./functions/utils');
+
+const {
+  SUBSCRIBE_USER,
+  UPDATE_LOCATION,
+  GET_LOCATIONS
+} = require('./types/sockets');
 
 const app = express();
 const server = http.createServer(app);
@@ -19,22 +26,95 @@ app.use(express.json({extended: true}));
 const PORT = process.env.PORT || 4000;
 
 
-global.usersIo = [];
+global.usersIo = {};
+global.usersLocations = {};
+
+
+
+// const filterResultsForFieldManager = (obj, property) => {
+//   const keys = Object.keys(obj);
+//   // console.log('keys', keys);
+//   let temp = {};
+//   for( let key of keys ) {
+//     if( obj[key].socketId !== socketId ) temp[key] = obj[key];
+//   }
+//   obj = temp;
+// }
+
+const getUsersCoordsByTypeUser = (userType, teamLead) => { 
+  let temp = {};
+  if( userType === 'ADMIN'  ) temp = global.usersLocations;
+  temp = filterObjByProperty(global.usersLocations, 'teamId', teamLead);
+  console.log('temp final', temp);
+  return temp; 
+}
+
+const sendUserCoords = () => {
+  Object.values(global.usersIo).forEach((item) => {
+      if( item.userType === 'EMPLOYEE' ) return;
+      io.to(global.usersIo[item.userId].socketId).emit(GET_LOCATIONS, {
+        userCoords: getUsersCoordsByTypeUser(item.userType, item.userTeamLead)
+      });
+  });
+  // console.log('se envio');
+}
 
 io.on("connection", socket => {
-  console.log("New client connected");
-  socket.on('loginuser', (data) => {
-    const { userId } = data;
-    console.log('data', data);
-    global.usersIo.push({socketId: socket.id, userId});
-  })
+  // console.log('con', SUBSCRIBE_USER);
+  socket.on( SUBSCRIBE_USER, (data) => {
+    const { userId, userType, userTeamLead } = data;
+    // console.log('data user io', data);
+
+    let temp = global.usersIo;
+
+    temp[userId] = {
+      socketId: socket.id, 
+      userId,
+      userType,
+      userTeamLead
+    }
+    global.usersIo = temp;
+    // console.log('global.usersIo', global.usersIo);
+
+  });
+  socket.on( UPDATE_LOCATION, (data) => {
+    const { userId, teamId, coords } = data;
+    // console.log('data', data);
+    // console.log('data location', data);
+    if( !userId ) return;
+    let temp = global.usersLocations;
+    console.log('location temp', temp);
+    console.log('validate', {
+      socketId: socket.id,
+      userId,
+      teamId,
+      coords
+    });
+
+    temp[userId] = {
+      socketId: socket.id,
+      userId,
+      teamId,
+      coords
+    }
+    console.log('final temp', temp);
+    global.usersLocations = temp;
+    sendUserCoords();
+  });
   socket.on("disconnect", () => {
-    global.usersIo = global.usersIo.filter((user) => user.socketId !== socket.id);
+
+    global.usersIo = filterObjByProperty(global.usersIo, 'socketId', socket.id);
+    // console.log('initial', global.usersLocations);
+    global.usersLocations = filterObjByProperty(global.usersLocations, 'socketId', socket.id);
+    // console.log('final', global.usersLocations);
+    // console.log('dis', global.usersLocations);
+    sendUserCoords();
   });
 });
 
 
+
 app.use('/', router(io));
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`Servidor corriendo en localhost:${PORT}`);
 });
