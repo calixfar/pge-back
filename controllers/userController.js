@@ -117,7 +117,7 @@ exports.getUser = async (req, res) => {
         const { user } = req;
         validateTypeUser(user.type_user, ["ADMIN"]);
         const { id } = req.params;
-        const searchUser = await User.findById(id).populate('works.work');
+        const searchUser = await User.findById(id).populate('works.work').populate('type');
         res.json({
             status: true,
             user: searchUser

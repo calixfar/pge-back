@@ -54,6 +54,7 @@ module.exports = (io) => {
     router.get('/api/v1/work-search/:search', auth, workController.getWorksBySearch);
     router.get('/api/v1/work-count/:filterZone', auth, workController.getCountWorks);
     router.get('/api/v1/work/:id', auth, workController.getWork);
+    router.get('/api/v1/work/user/:id', auth, workController.getWorksByUser);
     router.put('/api/v1/work/:id', auth, workController.updateWork);
     router.delete('/api/v1/work/:id', auth, workController.deleteWork);
     //TYPE WORK

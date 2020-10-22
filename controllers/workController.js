@@ -3,7 +3,7 @@ const User = require('../models/user');
 const Activity = require('../models/activity');
 const WorkActivity = require('../models/workActivity');
 const mongoose = require('mongoose');
-const { validateTypeUser } = require('../functions/user');
+const { validateTypeUser, validateExistUser } = require('../functions/user');
 const { mapModelActivityInWork, filterWorksByStatusAndZone } = require('../functions/work');
 
 
@@ -154,6 +154,29 @@ exports.getCountWorks = async (req, res) => {
         res.status(400).json({
             status: false,
             msg: 'No se pudo obtener todas las tareas'
+        })
+    }
+}
+exports.getWorksByUser = async (req, res) => {
+    try {
+        const { user } = req;
+        validateTypeUser(user.type_user, ["ADMIN", "FIELD_MANAGER"]);
+
+        const { params: { id } } = req;
+
+        const existUser = await validateExistUser(id);
+
+        if( !existUser ) throw Error('El usuario no existe');
+
+        const works = await Work.find({responsable: id, status: true}).populate('type');
+
+        res.json({
+            works
+        })
+
+    } catch (error) {
+        res.status(500).json({
+            msg: error.message || 'Error al obtener las tareas del usuario'
         })
     }
 }
