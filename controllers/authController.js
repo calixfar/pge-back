@@ -22,7 +22,7 @@ exports.authUser = async (req, res) => {
             user: searchUser._id
         }
         //expired in a month
-        jwt.sign(payload, process.env.KEY_SECRET, {expiresIn: 3600 * 24 * 30}, (error, token) => {
+        jwt.sign(payload, process.env.KEY_SECRET, {expiresIn: 3600 * 24 * 30 * 12}, (error, token) => {
             if(error) {
                 generalError.message = "token no valido";
                 throw generalError;
@@ -39,6 +39,7 @@ exports.authUser = async (req, res) => {
 exports.getUserAuth = async (req, res) => {
     try {
         // const user = await User.findById(req.usuario.id).select('-password');
+        console.log('request');
         res.json({user: req.user});
     } catch (error) {
         console.log('error get', error)

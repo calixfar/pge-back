@@ -19,3 +19,15 @@ exports.validateTypeUser = (typeUser, valideTypesUser) => {
         throw error;
     }
 }
+exports.userUpdateLocation = async ( userId, coords ) => {
+    try {
+        const { latitude, longitude } = coords;
+        console.log('in user', latitude, longitude, !latitude || !longitude);
+        if( !latitude || !longitude ) return false;
+        await User.findOneAndUpdate({ _id: userId }, { latitude, longitude });
+        return true;
+
+    } catch (error) {
+        return false;
+    }
+}

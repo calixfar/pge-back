@@ -5,14 +5,17 @@ const cors = require('cors');
 const fileUpload = require('express-fileupload');
 const socketIo = require("socket.io");
 const http = require("http");
-const { filterObjByProperty } = require('./functions/utils');
+const { filterObjByProperty, findObjByProperty } = require('./functions/utils');
+const { userUpdateLocation } = require('./functions/user');
 
 const {
   SUBSCRIBE_USER,
   UPDATE_LOCATION,
-  GET_LOCATIONS
+  GET_LOCATIONS,
+  ENABLE
 } = require('./types/sockets');
 
+const { changeEnableDisconnectUserBySocket } = require('./functions/sockets');
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server); 
@@ -83,19 +86,12 @@ io.on("connection", socket => {
     // console.log('data location', data);
     if( !userId ) return;
     let temp = global.usersLocations;
-    console.log('location temp', temp);
-    console.log('validate', {
-      socketId: socket.id,
-      userId,
-      teamId,
-      coords
-    });
-
     temp[userId] = {
       socketId: socket.id,
       userId,
       teamId,
-      coords
+      coords,
+      enable: ENABLE.ON
     }
     console.log('final temp', temp);
     global.usersLocations = temp;
@@ -103,9 +99,14 @@ io.on("connection", socket => {
   });
   socket.on("disconnect", () => {
 
+
+
+
     global.usersIo = filterObjByProperty(global.usersIo, 'socketId', socket.id);
     // console.log('initial', global.usersLocations);
-    global.usersLocations = filterObjByProperty(global.usersLocations, 'socketId', socket.id);
+
+    changeEnableDisconnectUserBySocket(socket.id);
+    // global.usersLocations = filterObjByProperty(global.usersLocations, 'socketId', socket.id);
     // console.log('final', global.usersLocations);
     // console.log('dis', global.usersLocations);
     sendUserCoords();
