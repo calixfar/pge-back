@@ -56,6 +56,7 @@ module.exports = (io) => {
     router.get('/api/v1/work/:id', auth, workController.getWork);
     router.get('/api/v1/work/user/:id', auth, workController.getWorksByUser);
     router.put('/api/v1/work/:id', auth, workController.updateWork);
+    router.put('/api/v1/work-status/:id', auth, workController.changeStatusWork);
     router.delete('/api/v1/work/:id', auth, workController.deleteWork);
     router.delete('/api/v1/reset-work', auth, workController.resetWorks);
     //TYPE WORK

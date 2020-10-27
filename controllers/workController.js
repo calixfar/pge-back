@@ -133,6 +133,11 @@ exports.getCountWorks = async (req, res) => {
 
         const {params: { filterZone }} = req;
 
+        let querySearch = {
+            status: true
+        }
+
+        if( user.type_user === 'FIELD_MANAGER' ) querySearch.creator = user._id;
         let queryPopulatePlace = 'place';
         
         if( filterZone.toUpperCase() !== 'ALL' && filterZone !== '' ) {
@@ -142,7 +147,7 @@ exports.getCountWorks = async (req, res) => {
                 match: { zone: regex }
             };
         }
-        let countWorks = await Work.find({ status: true }).populate(queryPopulatePlace);
+        let countWorks = await Work.find(querySearch).populate(queryPopulatePlace);
 
         countWorks = filterWorksByStatusAndZone(countWorks);
         console.log(countWorks);
@@ -188,12 +193,13 @@ exports.updateWork = async (req, res) => {
         validateTypeUser(user.type_user, ["ADMIN", "FIELD_MANAGER"]);
         const {params: { id }} = req;
         const searchWork = await Work.findOne({_id: id});
-        if( searchWork.status_work === 'Culminada' ){
-            const error = new Error();
-            error.name = 'No modificable';
-            error.message = 'No se puede modificar debido a que está en estado culminada';
-            throw error;
-        }
+        if( !searchWork ) throw Error('No se pudo encontrar una tarea con ese id');
+        // if( searchWork.status_work === 'Culminada' ){
+        //     const error = new Error();
+        //     error.name = 'No modificable';
+        //     error.message = 'No se puede modificar debido a que está en estado culminada';
+        //     throw error;
+        // }
         await Work.findOneAndUpdate({_id: id}, req.body, { new: true });
         res.json({
             status: true,
@@ -207,12 +213,43 @@ exports.updateWork = async (req, res) => {
         })
     }
 };
+exports.changeStatusWork = async (req, res) => {
+    try {   
+        const { user, params: {id} } = req;
+
+        const searchWork = await Work.findOne({_id: id});
+        if( !searchWork ) throw Error('No se pudo encontrar una tarea con ese id');
+
+        const { status_work, commentary } = req.body;
+
+        if( !status_work ) throw Error('Por favor indica el nuevo estado de la tarea');
+
+        const objUpdate = {
+            status_work
+        };
+
+        if( commentary ) objUpdate.commentary = commentary;
+
+        await Work.findOneAndUpdate({_id: id}, objUpdate);
+
+        res.json({
+            msg: 'Estado actualizado con éxito'
+        })
+        
+
+    } catch (error) {
+        res.status(500).json({
+            msg: error.message || 'Ocurrio un error al actualizar el estado'
+        })
+    }
+}
 exports.deleteWork = async (req, res) => {
     try {
         const { user } = req;
         validateTypeUser(user.type_user, ["ADMIN", "FIELD_MANAGER"]);
         const {params: { id }} = req;
         const searchWork = await Work.findOne({_id: id});
+        if( !searchWork ) throw Error('No se pudo encontrar una tarea con ese id');
         // if( searchWork.status_work === 'Culminada' ){
         //     const error = new Error();
         //     error.name = 'No modificable';

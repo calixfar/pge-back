@@ -5,6 +5,7 @@ const { validateTypeUser } = require('../functions/user');
 const team = require('../models/team');
 const Notification = require('../models/notification');
 const { deleteWork } = require('../functions/work');
+const { deleteMember } = require('../functions/team');
 const { CREATE_USER,
     UPDATE_USER,
     DELETE_USER 
@@ -178,6 +179,11 @@ exports.deleteUser = async ( req, res ) => {
             error.message = "El usuario no se encuentra registrado";
             throw error;
         }
+        
+        const resDeleteMember = await deleteMember(searchUser.team_id, searchUser._id);
+
+        if( !resDeleteMember ) throw Error('Ocurrio un error al eliminar el usaurio del grupo de trabajo');
+
         if( searchUser.works.length > 0 ) {
             let promises = searchUser.works.map(({ work }) => deleteWork(work));
             await Promise.all(promises);
