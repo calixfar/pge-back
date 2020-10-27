@@ -6,6 +6,8 @@ const mongoose = require('mongoose');
 const { validateTypeUser, validateExistUser } = require('../functions/user');
 const { mapModelActivityInWork, filterWorksByStatusAndZone } = require('../functions/work');
 
+const { deleteWork } = require('../functions/work');
+
 
 exports.insertWork = async (req, res) => {
     try {
@@ -211,13 +213,13 @@ exports.deleteWork = async (req, res) => {
         validateTypeUser(user.type_user, ["ADMIN", "FIELD_MANAGER"]);
         const {params: { id }} = req;
         const searchWork = await Work.findOne({_id: id});
-        if( searchWork.status_work === 'Culminada' ){
-            const error = new Error();
-            error.name = 'No modificable';
-            error.message = 'No se puede modificar debido a que está en estado culminada';
-            throw error;
-        }
-        await Work.findOneAndUpdate({_id: id}, {status: false});
+        // if( searchWork.status_work === 'Culminada' ){
+        //     const error = new Error();
+        //     error.name = 'No modificable';
+        //     error.message = 'No se puede modificar debido a que está en estado culminada';
+        //     throw error;
+        // }
+        
         await User.findByIdAndUpdate(
             {_id: searchWork.responsable},
             { $pull: {
@@ -226,13 +228,9 @@ exports.deleteWork = async (req, res) => {
                 }
             }},
             { new : true }
-        )
-        const workActivities = await WorkActivity.find({work: id});
-        
-        const promises = workActivities.map(({_id}) => WorkActivity.findOneAndDelete({_id}));
-
-        await Promise.all(promises);
-
+        );
+        const resDeleteWork = await deleteWork(id);
+        if( !resDeleteWork ) throw Error('Error al eliminar la tarea, por favor intentalo de nuevo');
         res.json({
             status: true,
             msg: 'Tarea eliminada éxitosamente'
@@ -241,7 +239,7 @@ exports.deleteWork = async (req, res) => {
         let defaultMsg = 'No se pudo actualizar la tarea';
         res.status(400).json({
             status: false,
-            msg: error.name === 'No modificable' ? error.message : defaultMsg
+            msg:  error.message || defaultMsg
         });
     }
 }
@@ -253,4 +251,25 @@ const changeStatusViewsWorks = (works) => {
     });
     return true;
 
+}
+
+exports.resetWorks = async ( req, res ) => {
+    try {
+        const { user } = req;
+        validateTypeUser(user.type_user, ["ADMIN", "FIELD_MANAGER"]);
+
+        const works = await Work.find().populate('responsable');
+
+        let promises = works.map(({ _id, responsable }) => !responsable ? Work.findOneAndDelete({_id}) : null); 
+
+        await Promise.all(promises);
+
+        res.json({
+            works
+        })
+    } catch (error) {
+        res.status(500).json({
+            msg: error.message || 'Error al resetear la bd'
+        })
+    }
 }

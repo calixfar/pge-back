@@ -15,7 +15,8 @@ const workActivitySchema = mongoose.Schema({
         default: null
     },
     work: {
-        type: mongoose.Schema.Types.ObjectId
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Work'
     },
     status: {
         type: Boolean,

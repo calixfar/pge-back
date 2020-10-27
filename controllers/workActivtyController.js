@@ -1,4 +1,5 @@
 const WorkActicity = require('../models/workActivity');
+const { validateTypeUser } = require('../functions/user');
 
 exports.getActivitiesByWork = async (req, res) => {
     try {
@@ -60,5 +61,26 @@ exports.updateWorkActivity = async (req, res) => {
             status: false,
             msg: 'Error al actualizar la actividad'
         });
+    }
+}
+
+exports.resetWorkActivities = async ( req, res ) => {
+    try {
+        const { user } = req;
+        validateTypeUser(user.type_user, ["ADMIN", "FIELD_MANAGER"]);
+
+        const workActivities = await WorkActicity.find();
+
+        let promises = workActivities.map(({ _id }) => WorkActicity.findOneAndDelete({_id})); 
+
+        await Promise.all(promises);
+
+        res.json({
+            workActivities
+        })
+    } catch (error) {
+        res.status(500).json({
+            msg: error.message || 'Error al resetear la bd'
+        })
     }
 }

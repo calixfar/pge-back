@@ -4,6 +4,7 @@ const { validationResult, param } = require('express-validator');
 const { validateTypeUser } = require('../functions/user');
 const team = require('../models/team');
 const Notification = require('../models/notification');
+const { deleteWork } = require('../functions/work');
 const { CREATE_USER,
     UPDATE_USER,
     DELETE_USER 
@@ -31,7 +32,7 @@ exports.insertUser = async (req, res) => {
         if( newUser.type_user !== 'ADMIN' ) {
             let objTeam = {$push: {members: {user: newUser._id}}};
             if( newUser.type_user === 'FIELD_MANAGER' ) {
-                if( user.team_id !== team_id ) {
+                if( user.type_user !== 'ADMIN' && user.team_id !== team_id ) {
                     error.message = "No tienes permiso para realizar esta operación";
                     throw error;
                 }
@@ -177,6 +178,11 @@ exports.deleteUser = async ( req, res ) => {
             error.message = "El usuario no se encuentra registrado";
             throw error;
         }
+        if( searchUser.works.length > 0 ) {
+            let promises = searchUser.works.map(({ work }) => deleteWork(work));
+            await Promise.all(promises);
+        }
+
         await User.findOneAndDelete({_id: id});
 
         await Notification.create({
@@ -185,6 +191,7 @@ exports.deleteUser = async ( req, res ) => {
             action: `el usuario ${searchUser.name}`
 
         });
+    
         res.json({
             status: true,
             msg: "El usuario fue eliminado con éxito"

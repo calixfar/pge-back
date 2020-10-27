@@ -57,6 +57,7 @@ module.exports = (io) => {
     router.get('/api/v1/work/user/:id', auth, workController.getWorksByUser);
     router.put('/api/v1/work/:id', auth, workController.updateWork);
     router.delete('/api/v1/work/:id', auth, workController.deleteWork);
+    router.delete('/api/v1/reset-work', auth, workController.resetWorks);
     //TYPE WORK
     router.post('/api/v1/type-work', auth, typeWorkController.insertTypeWork);
     router.get('/api/v1/type-work', auth, typeWorkController.getTypesWork);
@@ -71,6 +72,7 @@ module.exports = (io) => {
     router.delete('/api/v1/activity/:id', auth, activityController.deleteActivity);
     //WORK ACTIVITY
     router.get('/api/v1/work-activity/:workId', auth, workActivityController.getActivitiesByWork);
+    router.get('/api/v1/reset-work-activity', auth, workActivityController.resetWorkActivities);
     // router.get('/api/v1/activity/:id', auth, activityController.g);
     router.put('/api/v1/work-activity/:id', auth, workActivityController.updateWorkActivity);
     // NOTIFICATION

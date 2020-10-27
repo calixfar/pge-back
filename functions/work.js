@@ -1,4 +1,5 @@
 const WorkActivity = require('../models/workActivity');
+const Work = require('../models/work');
 const { zones } = require('../types/zone');
 
 exports.mapModelActivityInWork = async (activies, workId) => {
@@ -41,4 +42,19 @@ exports.filterWorksByStatusAndZone = ( works ) => {
     });
     
     return countWorks;
+}
+
+exports.deleteWork = async (id) => {
+    try {
+        await Work.findOneAndUpdate({_id: id}, {status: false});
+        const workActivities = await WorkActivity.find({work: id});
+        
+        const promises = workActivities.map(({_id }) => WorkActivity.findOneAndDelete({_id}));
+
+        await Promise.all(promises);
+        
+        return true;
+    } catch (error) {
+        return false;
+    }
 }
