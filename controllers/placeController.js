@@ -2,6 +2,7 @@ const Place = require('./../models/places');
 const { validationResult } = require('express-validator');
 const { validateTypeUser } = require('../functions/user');
 const { validateDataInBd } = require('../functions/general');
+const { deleteWorksNullRefs } = require('../functions/work');
 exports.insertPlace = async (req, res) => {
     const errors = validationResult(req);
     if(!errors.isEmpty()) {
@@ -194,7 +195,9 @@ exports.deletePlace = async ( req, res ) => {
             error.message = "El lugar no se encuentra registrado";
             throw error;
         }
-        await Place.findOneAndUpdate({_id: id}, {status: false});
+        await Place.findOneAndDelete({_id: id});
+        // await Place.findOneAndUpdate({_id: id}, {status: false});
+        await deleteWorksNullRefs();
         res.json({
             status: true,
             msg: "El equipo fue eliminado con éxito"
@@ -204,5 +207,27 @@ exports.deletePlace = async ( req, res ) => {
             status: false,
             msg: error.name === "internal"? error.message : "Error al eliminar el lugar"
         });
+    }
+}
+exports.resetPlaces = async ( req, res ) => {
+    try {
+        const { user } = req;
+        validateTypeUser(user.type_user, ["ADMIN"]);
+
+        const places = await Place.find();
+
+        let promises = places.map(({ _id }) => Place.findOneAndDelete({_id})); 
+
+        await Promise.all(promises);
+
+        await deleteWorksNullRefs();
+
+        res.json({
+            places
+        })
+    } catch (error) {
+        res.status(500).json({
+            msg: error.message || 'Error al resetear la bd'
+        })
     }
 }

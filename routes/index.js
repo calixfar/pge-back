@@ -47,6 +47,7 @@ module.exports = (io) => {
     router.get('/api/v1/place/:id', auth, placeController.getPlace);
     router.put('/api/v1/place/:id', auth, placeController.updatePlace);
     router.delete('/api/v1/place/:id', auth, placeController.deletePlace);
+    router.delete('/api/v1/place-reset', auth, placeController.resetPlaces);
     router.post('/api/v1/place/file', auth, placeController.masiveInsert);
     //WORK
     router.post('/api/v1/work', auth, (req, res) => workController.insertWork(req, res, io) );
@@ -58,7 +59,7 @@ module.exports = (io) => {
     router.put('/api/v1/work/:id', auth, workController.updateWork);
     router.put('/api/v1/work-status/:id', auth, workController.changeStatusWork);
     router.delete('/api/v1/work/:id', auth, workController.deleteWork);
-    router.delete('/api/v1/reset-work', auth, workController.resetWorks);
+    router.delete('/api/v1/work-reset', auth, workController.resetWorks);
     //TYPE WORK
     router.post('/api/v1/type-work', auth, typeWorkController.insertTypeWork);
     router.get('/api/v1/type-work', auth, typeWorkController.getTypesWork);

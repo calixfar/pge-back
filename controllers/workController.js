@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 const { validateTypeUser, validateExistUser } = require('../functions/user');
 const { mapModelActivityInWork, filterWorksByStatusAndZone } = require('../functions/work');
 
-const { deleteWork } = require('../functions/work');
+const fnWork = require('../functions/work');
 
 
 exports.insertWork = async (req, res) => {
@@ -257,23 +257,15 @@ exports.deleteWork = async (req, res) => {
         //     throw error;
         // }
         
-        await User.findByIdAndUpdate(
-            {_id: searchWork.responsable},
-            { $pull: {
-                works: {
-                    work: mongoose.Types.ObjectId(id)
-                }
-            }},
-            { new : true }
-        );
-        const resDeleteWork = await deleteWork(id);
+        
+        const resDeleteWork = await fnWork.deleteWork(id, searchWork.responsable);
         if( !resDeleteWork ) throw Error('Error al eliminar la tarea, por favor intentalo de nuevo');
         res.json({
             status: true,
             msg: 'Tarea eliminada éxitosamente'
         })
     } catch (error) {
-        let defaultMsg = 'No se pudo actualizar la tarea';
+        let defaultMsg = 'No se pudo eliminar la tarea';
         res.status(400).json({
             status: false,
             msg:  error.message || defaultMsg
@@ -295,14 +287,17 @@ exports.resetWorks = async ( req, res ) => {
         const { user } = req;
         validateTypeUser(user.type_user, ["ADMIN", "FIELD_MANAGER"]);
 
-        const works = await Work.find().populate('responsable');
+        const resDelete = await fnWork.deleteWorksNullRefs();
 
-        let promises = works.map(({ _id, responsable }) => !responsable ? Work.findOneAndDelete({_id}) : null); 
+        if( !resDelete ) throw Error('Ocurrio un error');
+        // const works = await Work.find().populate('responsable');
 
-        await Promise.all(promises);
+        // let promises = works.map(({ _id, responsable }) => !responsable ? Work.findOneAndDelete({_id}) : null); 
+
+        // await Promise.all(promises);
 
         res.json({
-            works
+            msg: 'Proceso completado con éxito'
         })
     } catch (error) {
         res.status(500).json({

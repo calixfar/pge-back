@@ -1,8 +1,10 @@
 const WorkActivity = require('../models/workActivity');
 const Work = require('../models/work');
+const User = require('../models/user');
+const mongoose = require('mongoose');
 const { zones } = require('../types/zone');
 
-exports.mapModelActivityInWork = async (activies, workId) => {
+const mapModelActivityInWork = async (activies, workId) => {
     try {       
         const promises = activies.map( async ({ _id, name }) => {
             const newWorkActivity = new WorkActivity({
@@ -21,7 +23,7 @@ exports.mapModelActivityInWork = async (activies, workId) => {
     }
 }
 
-exports.filterWorksByStatusAndZone = ( works ) => {
+const filterWorksByStatusAndZone = ( works ) => {
     let countWorks = {
         Sin_revisar: 0, 
         Vista: 0, 
@@ -44,8 +46,19 @@ exports.filterWorksByStatusAndZone = ( works ) => {
     return countWorks;
 }
 
-exports.deleteWork = async (id) => {
+const deleteWork = async (id, userId) => {
     try {
+
+        if( userId ) {
+            await User.findByIdAndUpdate(
+                {_id: userId},
+                { $pull: {
+                    works: {
+                        work: mongoose.Types.ObjectId(id)
+                    }
+                }}
+            );
+        }
         await Work.findOneAndUpdate({_id: id}, {status: false});
         const workActivities = await WorkActivity.find({work: id});
         
@@ -55,6 +68,35 @@ exports.deleteWork = async (id) => {
         
         return true;
     } catch (error) {
+        console.log('errordeleteWork', error);
         return false;
     }
+}
+
+const deleteWorksNullRefs = async () => {
+    try {
+        const works = await Work.find({ status: true })
+        .populate('responsable')
+        .populate('place');
+
+        const promises = works.map(({ _id, responsable, place }) => !responsable || !place ? deleteWork(_id, responsable ? responsable._id : null) : null );
+
+        await Promise.all(promises);
+
+        
+        return true;
+        
+    } catch (error) {
+
+        console.log('errorDeleteWorksNullRef', error);
+        return false;
+    }
+}
+
+
+module.exports = {
+    mapModelActivityInWork,
+    filterWorksByStatusAndZone,
+    deleteWork,
+    deleteWorksNullRefs
 }
