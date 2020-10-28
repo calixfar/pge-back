@@ -6,11 +6,11 @@ const workActivitySchema = mongoose.Schema({
         type: Date,
         default: null
     },
-    lat: {
+    latitude: {
         type: String,
         default: null
     },
-    lng: {
+    longitude: {
         type: String,
         default: null
     },

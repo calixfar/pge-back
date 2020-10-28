@@ -32,18 +32,18 @@ exports.updateWorkActivity = async (req, res) => {
 
         if( !searchActivity ) throw Error('No existe una actividad con este id');
 
-        const { status, lat, lng } = req.body;
+        const { status, latitude, longitude } = req.body;
 
         let objToUpdate = {
             status,
-            lat: null,
-            lng: null,
+            latitude: null,
+            longitude: null,
             date: null
         }
 
         if( status ) {
-            objToUpdate.lat = lat ? lat : null;
-            objToUpdate.lng = lng ? lng : null;
+            objToUpdate.latitude = latitude ? latitude : null;
+            objToUpdate.longitude = longitude ? longitude : null;
             objToUpdate.date = new Date();
         }
 
