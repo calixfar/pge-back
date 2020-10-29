@@ -52,7 +52,18 @@ exports.getWorks = async (req, res) => {
         
         let params = {status: true};
         if( type_user === 'FIELD_MANAGER' ) params.team = user.team_id;
-        if( type_user === 'EMPLOYEE' ) params.responsable = user._id;
+        if( type_user === 'EMPLOYEE' ) {
+            params.responsable = user._id;
+        }
+        /**
+            params.status_work = { $ne: 'Culminada' }
+         * 
+         * params['$or'] = [
+                {status_work : { $ne: 'Culminada' } },
+                {status_work : { $ne: 'Problema' } },
+            ]
+         */
+        console.log(params);
         let works = await Work.find(params)
         .populate('responsable', '-password -works -assign_team')
         .populate('place')
@@ -222,18 +233,15 @@ exports.changeStatusWork = async (req, res) => {
 
         const { status_work, commentary } = req.body;
 
-        if( !status_work ) throw Error('Por favor indica el nuevo estado de la tarea');
+        const objUpdate = {};
 
-        const objUpdate = {
-            status_work
-        };
-
+        if( status_work ) objUpdate.status_work = status_work;
         if( commentary ) objUpdate.commentary = commentary;
 
         await Work.findOneAndUpdate({_id: id}, objUpdate);
 
         res.json({
-            msg: 'Estado actualizado con éxito'
+            msg: 'Actualización exitosa'
         })
         
 

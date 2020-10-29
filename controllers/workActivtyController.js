@@ -1,4 +1,4 @@
-const WorkActicity = require('../models/workActivity');
+const WorkActivity = require('../models/workActivity');
 const { validateTypeUser } = require('../functions/user');
 
 exports.getActivitiesByWork = async (req, res) => {
@@ -6,7 +6,7 @@ exports.getActivitiesByWork = async (req, res) => {
 
         const { params: { workId } } = req;
 
-        const activities = await WorkActicity.find({work: workId});
+        const activities = await WorkActivity.find({work: workId});
 
         if( !activities ) activities = [];
 
@@ -28,7 +28,7 @@ exports.updateWorkActivity = async (req, res) => {
         
         const { params: { id } } = req;
 
-        let searchActivity = await Activity.findOne({ _id: id });
+        let searchActivity = await WorkActivity.findOne({ _id: id });
 
         if( !searchActivity ) throw Error('No existe una actividad con este id');
 
@@ -36,18 +36,18 @@ exports.updateWorkActivity = async (req, res) => {
 
         let objToUpdate = {
             status,
-            latitude: null,
-            longitude: null,
-            date: null
+            latitude: latitude ? latitude : null,
+            longitude: longitude ? longitude : null,
+            date: new Date()
         }
 
-        if( status ) {
-            objToUpdate.latitude = latitude ? latitude : null;
-            objToUpdate.longitude = longitude ? longitude : null;
-            objToUpdate.date = new Date();
-        }
+        // if( status !== undefined ) {
+        //     objToUpdate.latitude = latitude ? latitude : null;
+        //     objToUpdate.longitude = longitude ? longitude : null;
+        //     objToUpdate.date = new Date();
+        // }
 
-        await WorkActicity.findOneAndUpdate({ _id: id }, objToUpdate);
+        await WorkActivity.findOneAndUpdate({ _id: id }, objToUpdate);
 
         res.json({
             status: true,
