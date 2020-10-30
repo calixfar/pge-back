@@ -158,13 +158,16 @@ exports.getCountWorks = async (req, res) => {
                 match: { zone: regex }
             };
         }
-        let countWorks = await Work.find(querySearch).populate(queryPopulatePlace);
+        let works = await Work.find(querySearch)
+        .populate(queryPopulatePlace)
+        .populate('type');
 
-        countWorks = filterWorksByStatusAndZone(countWorks);
+        const { countWorks, count } = filterWorksByStatusAndZone(works);
         console.log(countWorks);
         res.json({
             status: true,
-            countWorks
+            countWorks, 
+            count
         })
 
     } catch (error) {
@@ -198,6 +201,7 @@ exports.getWorksByUser = async (req, res) => {
         })
     }
 }
+
 exports.updateWork = async (req, res) => {
     try {
         const { user } = req;

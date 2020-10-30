@@ -132,6 +132,28 @@ exports.getUser = async (req, res) => {
     }
 }
 
+exports.getCountEmployee = async (req, res) => {
+    try {
+        const { user } = req;
+        validateTypeUser(user.type_user, ["ADMIN", "FIELD_MANAGER"]);
+
+        const params = {};
+
+        if( user.type_user === 'FIELD_MANAGER' ) {
+            
+            params.team_id = user.team_id;
+        }
+        const searchUsers = await User.find(params).populate('works.work');
+
+        res.json({
+            worksUsers: searchUsers
+        })
+    } catch (error) {
+        res.status(500).json({
+            msg: error.message || 'Error al obtener el resultado'
+        })
+    }
+}
 exports.updateUser = async ( req, res ) => {
     try {
         const { user } = req;

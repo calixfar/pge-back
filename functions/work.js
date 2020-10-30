@@ -3,6 +3,7 @@ const Work = require('../models/work');
 const User = require('../models/user');
 const mongoose = require('mongoose');
 const { zones } = require('../types/zone');
+let { valuesCountWorks } = require('../types/works');
 
 const mapModelActivityInWork = async (activies, workId) => {
     try {       
@@ -24,26 +25,23 @@ const mapModelActivityInWork = async (activies, workId) => {
 }
 
 const filterWorksByStatusAndZone = ( works ) => {
-    let countWorks = {
-        Sin_revisar: 0, 
-        Vista: 0, 
-        Problema: 0, 
-        Navegacion: 0, 
-        Inicio_tarea: 0, 
-        Culminada: 0, 
-        Pendiente: 0,
-        count: 0
-    };
 
-    works.forEach( ({status_work,  place}) => {
-        if( place !== null ) {
-            countWorks[status_work] = countWorks[status_work] + 1;
-            countWorks.count = countWorks.count + 1;
+    let count = 0;
+    let countWorks = JSON.parse(JSON.stringify(valuesCountWorks));
 
+    works.forEach( ({status_work,  place, type}) => {
+        console.log(type);
+        if( place !== null && countWorks[type.type] ) {
+            countWorks[status_work].count = countWorks[status_work].count  ? countWorks[status_work].count  + 1 : 1;
+            countWorks[type.type].count = countWorks[type.type].count ? countWorks[type.type].count + 1 : 1;
+            count += 1;
         }
     });
     
-    return countWorks;
+    return {
+        countWorks,
+        count
+    };
 }
 
 const deleteWork = async (id, userId) => {

@@ -20,6 +20,7 @@ module.exports = (io) => {
     router.get('/api/v1/user/filter/:name', auth, userController.getUsers);
     router.get('/api/v1/usersField', auth, userController.getUsersFieldManager);
     router.get('/api/v1/user/:id', auth, userController.getUser);
+    router.get('/api/v1/user-count', auth, userController.getCountEmployee);
     router.put('/api/v1/user/:id', auth, userController.updateUser);
     router.delete('/api/v1/user/:id', auth, userController.deleteUser);
     //AUTH
