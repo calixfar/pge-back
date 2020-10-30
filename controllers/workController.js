@@ -65,9 +65,9 @@ exports.getWorks = async (req, res) => {
          */
         console.log(params);
         let works = await Work.find(params)
+        .populate('type')
         .populate('responsable', '-password -works -assign_team')
         .populate('place')
-        .populate('type')
         .populate('team', '-members');
 
         res.json({
@@ -119,6 +119,7 @@ exports.getWorksBySearch = async ( req, res ) => {
             };
         }
         let works = await Work.find(params)
+        .populate('type')
         .populate('responsable', '-password -works -assign_team')
         .populate('team', '-members')
         .populate(queryPopulatePlace);
