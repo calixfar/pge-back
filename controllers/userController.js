@@ -137,7 +137,7 @@ exports.getCountEmployee = async (req, res) => {
         const { user } = req;
         validateTypeUser(user.type_user, ["ADMIN", "FIELD_MANAGER"]);
 
-        const params = {};
+        const params = {type_user: 'EMPLOYEE'};
 
         if( user.type_user === 'FIELD_MANAGER' ) {
             
