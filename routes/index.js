@@ -53,7 +53,7 @@ module.exports = (io) => {
     //WORK
     router.post('/api/v1/work', auth, (req, res) => workController.insertWork(req, res, io) );
     router.get('/api/v1/work', auth, workController.getWorks);
-    router.get('/api/v1/work-search/:search', auth, workController.getWorksBySearch);
+    router.get('/api/v1/work-search/:search/user/:userId', auth, workController.getWorksBySearch);
     router.get('/api/v1/work-count/:filterZone', auth, workController.getCountWorks);
     router.get('/api/v1/work/:id', auth, workController.getWork);
     router.get('/api/v1/work/user/:id', auth, workController.getWorksByUser);

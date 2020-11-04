@@ -107,9 +107,22 @@ exports.getWork = async (req, res) => {
 exports.getWorksBySearch = async ( req, res ) => {
     try {
 
-        let { params: { search } } = req;
+        let { params: { search, userId }, user } = req;
+        console.log(search, userId);
         let params = {status: true};
         let queryPopulatePlace = 'place';
+
+        if( user.type_user === 'EMPLOYEE' ) {
+            params.responsable = user._id;
+        }
+        else if( user.type_user === 'FIELD_MANAGER' ) {
+            params.team = user.team_id;
+        }
+
+        if( userId.length && userId.toUpperCase() !== 'ALL' ) {
+            console.log('entro params');
+            params.responsable = userId;
+        }
 
         if( search.toUpperCase() !== 'ALL' && search !== '' ) {
             let regex = new RegExp(`^${search.trim()}`, 'i');
@@ -118,6 +131,7 @@ exports.getWorksBySearch = async ( req, res ) => {
                 match: { name: regex }
             };
         }
+        console.log('params', params);
         let works = await Work.find(params)
         .populate('type')
         .populate('responsable', '-password -works -assign_team')
