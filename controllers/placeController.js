@@ -85,7 +85,7 @@ exports.getPlaces = async( req, res ) => {
     try {
         const { user } = req;
         validateTypeUser(user.type_user, ["ADMIN", "FIELD_MANAGER"]);
-        const places = await Place.find({status: true}).select('-status');
+        const places = await Place.find({status: true}).select('-status').populate('works.work');
         res.json({
             status: true,
             places
@@ -195,9 +195,9 @@ exports.deletePlace = async ( req, res ) => {
             error.message = "El lugar no se encuentra registrado";
             throw error;
         }
+        await deleteWorksNullRefs();
         await Place.findOneAndDelete({_id: id});
         // await Place.findOneAndUpdate({_id: id}, {status: false});
-        await deleteWorksNullRefs();
         res.json({
             status: true,
             msg: "El equipo fue eliminado con éxito"

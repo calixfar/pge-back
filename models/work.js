@@ -30,6 +30,10 @@ const workSchema = new mongoose.Schema({
         type: String,
         default: ''
     },
+    commentaryEmployee: {
+        type: String,
+        default: ''
+    },
     creator: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'

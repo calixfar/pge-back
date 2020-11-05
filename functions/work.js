@@ -4,6 +4,7 @@ const User = require('../models/user');
 const mongoose = require('mongoose');
 const { zones } = require('../types/zone');
 let { valuesCountWorks } = require('../types/works');
+const { deleteWorkInPlace } = require('./place');
 
 const mapModelActivityInWork = async (activies, workId) => {
     try {       
@@ -44,9 +45,12 @@ const filterWorksByStatusAndZone = ( works ) => {
     };
 }
 
-const deleteWork = async (id, userId) => {
+const deleteWork = async (data) => {
     try {
+        const { id, userId, placeId } = data;
 
+        
+        await Work.findOneAndUpdate({_id: id}, {status: false});
         if( userId ) {
             await User.findByIdAndUpdate(
                 {_id: userId},
@@ -57,7 +61,7 @@ const deleteWork = async (id, userId) => {
                 }}
             );
         }
-        await Work.findOneAndUpdate({_id: id}, {status: false});
+        if( placeId ) await deleteWorkInPlace(placeId, id);
         const workActivities = await WorkActivity.find({work: id});
         
         const promises = workActivities.map(({_id }) => WorkActivity.findOneAndDelete({_id}));
@@ -77,7 +81,18 @@ const deleteWorksNullRefs = async () => {
         .populate('responsable')
         .populate('place');
 
-        const promises = works.map(({ _id, responsable, place }) => !responsable || !place ? deleteWork(_id, responsable ? responsable._id : null) : null );
+        const promises = works.map(({ _id, responsable, place }) => {
+            if(!responsable || !place) {
+
+                let params = {id: _id};
+    
+                if( responsable ) params.userId = responsable._id; 
+                if( place ) params.placeId = place._id; 
+
+                return deleteWork(params);
+            } 
+            return null;
+        });
 
         await Promise.all(promises);
 

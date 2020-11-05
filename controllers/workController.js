@@ -5,6 +5,7 @@ const WorkActivity = require('../models/workActivity');
 const mongoose = require('mongoose');
 const { validateTypeUser, validateExistUser } = require('../functions/user');
 const { mapModelActivityInWork, filterWorksByStatusAndZone } = require('../functions/work');
+const { insertWorkInPlace } = require('../functions/place');
 
 const fnWork = require('../functions/work');
 
@@ -33,6 +34,7 @@ exports.insertWork = async (req, res) => {
             }},
             { new: true }
         )
+        await insertWorkInPlace(newWork.place, newWork._id);
         res.json({
             status: true,
             msg: 'Tarea creada con éxito'
@@ -255,7 +257,7 @@ exports.changeStatusWork = async (req, res) => {
         const objUpdate = {};
 
         if( status_work ) objUpdate.status_work = status_work;
-        if( commentary ) objUpdate.commentary = commentary;
+        if( commentary ) objUpdate.commentaryEmployee = commentary;
 
         await Work.findOneAndUpdate({_id: id}, objUpdate);
 
@@ -285,7 +287,11 @@ exports.deleteWork = async (req, res) => {
         // }
         
         
-        const resDeleteWork = await fnWork.deleteWork(id, searchWork.responsable);
+        const resDeleteWork = await fnWork.deleteWork({
+            id,
+            userId: searchWork.responsable,
+            placeId: searchWork.place
+        });
         if( !resDeleteWork ) throw Error('Error al eliminar la tarea, por favor intentalo de nuevo');
         res.json({
             status: true,

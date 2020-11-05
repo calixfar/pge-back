@@ -51,6 +51,18 @@ const PlaceShema = mongoose.Schema({
     status: {
         type: Boolean,
         default: true
+    },
+    works: {
+        type: [{
+           work: {
+               type: mongoose.Schema.Types.ObjectId, 
+               ref: 'Work' 
+           },
+           status: {
+               type: Boolean,
+               default: true
+           }
+        }]
     }
 });
 
