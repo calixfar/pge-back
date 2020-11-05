@@ -224,6 +224,8 @@ exports.updateWork = async (req, res) => {
         const { user } = req;
         validateTypeUser(user.type_user, ["ADMIN", "FIELD_MANAGER"]);
         const {params: { id }} = req;
+        console.log('id', id);
+
         const searchWork = await Work.findOne({_id: id});
         if( !searchWork ) throw Error('No se pudo encontrar una tarea con ese id');
         // if( searchWork.status_work === 'Culminada' ){
@@ -238,6 +240,7 @@ exports.updateWork = async (req, res) => {
             msg: 'Tarea actualizada éxitosamente'
         })
     } catch (error) {
+        console.log('error update work', error);
         let defaultMsg = 'No se pudo actualizar la tarea';
         res.status(400).json({
             status: false,
