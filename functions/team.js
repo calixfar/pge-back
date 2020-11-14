@@ -18,7 +18,7 @@ exports.deleteMember = async (teamId, memberId) => {
 }
 exports.deleteMembersNullRef = async (teamId) => {
     try {
-        const team = Team.find({_id: teamId}).populate('members.user');
+        const team = await Team.findOne({_id: teamId}).populate('members.user');
         const promises = team.members.map((member) => {
             const { user } = member;
             if( user ) return null;
