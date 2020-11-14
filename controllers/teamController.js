@@ -3,6 +3,7 @@ const User = require('../models/user');
 const { validationResult } = require('express-validator');
 const { validateTypeUser } = require('../functions/user');
 const { validateDataInBd } = require('../functions/general');
+const { deleteMembersNullRef } = require('../functions/team');
 
 exports.insertTeam = async (req, res) => {
     const errors = validationResult(req);
@@ -152,3 +153,25 @@ exports.deleteTeam= async ( req, res ) => {
     }
 }
 
+exports.deleteMembersNullRefById = async (req, res) => {
+    try {
+        const { user } = req;
+        validateTypeUser(user.type_user, ["ADMIN"]);
+
+        const { params: { id } } = req;
+        if( !id ) throw Error('Por favor ingresa un id');
+
+        const resDelete = await deleteMembersNullRef(id);
+
+        if( !resDelete ) throw new Error('Algo salio mal al eliminar');
+
+        res.json({
+            msg: 'Proceso exitoso'
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: false,
+            msg: error.name === "internal"? error.message : "Error al eliminar el equipo"
+        });
+    }
+}

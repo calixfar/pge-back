@@ -9,7 +9,6 @@ module.exports = async function (req, res, next) {
         }
         const encryption = jwt.verify(token, process.env.KEY_SECRET);
         const searchUserLogged = await validateExistUser(encryption.user);
-        console.log('searchUserLogged', searchUserLogged);
         if(!searchUserLogged) {
             error.message = "User no existe";
             throw error;
@@ -17,7 +16,7 @@ module.exports = async function (req, res, next) {
         req.user = searchUserLogged;
         next();
     } catch (error) {
-        res.status(500).json({
+        res.status(403).json({
             status: false,
             msg: error.message || "token not valide"
         });

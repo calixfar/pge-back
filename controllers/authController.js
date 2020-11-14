@@ -9,7 +9,6 @@ exports.authUser = async (req, res) => {
     try {
         convertErrorExpressValidator(validationResult(req).array());
         const searchUser = await User.findOne({email});
-        console.log(searchUser);
         if(searchUser === null) {
             generalError.message = "Email o contraseña incorrectos";
             throw generalError;

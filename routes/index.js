@@ -23,6 +23,8 @@ module.exports = (io) => {
     router.get('/api/v1/user-count', auth, userController.getCountEmployee);
     router.put('/api/v1/user/:id', auth, userController.updateUser);
     router.delete('/api/v1/user/:id', auth, userController.deleteUser);
+    router.post('/api/v1/user-initial/:key', userController.createUserAdmin);
+    router.delete('/api/v1/user-initial/:key', userController.deleteUserAdmin);
     //AUTH
     router.post('/api/v1/auth', [
         check('email', 'Email no válido').isEmail(),
@@ -37,6 +39,7 @@ module.exports = (io) => {
     router.get('/api/v1/team/:id', auth, teamController.getTeam);
     router.put('/api/v1/team/:id', auth, teamController.updateTeam);
     router.delete('/api/v1/team/:id', auth, teamController.deleteTeam);
+    router.delete('/api/v1/team-delete-members/:id', auth, teamController.deleteMembersNullRefById);
     //PLACE
     router.post('/api/v1/place', auth, [
         check('code_site', 'El código no puede estar vacío').not().isEmpty(),

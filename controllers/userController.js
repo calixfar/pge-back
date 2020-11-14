@@ -10,6 +10,9 @@ const { CREATE_USER,
     UPDATE_USER,
     DELETE_USER 
 } = require('../types/notification');
+require('dotenv').config({
+    path: 'variables.env'
+});
 exports.insertUser = async (req, res) => {
     const errors = validationResult(req);
     if(!errors.isEmpty()) {
@@ -45,7 +48,7 @@ exports.insertUser = async (req, res) => {
                 objTeam =  {field_manager :newUser._id};
             }
             await Team.findOneAndUpdate({_id: team_id}, objTeam, {new: true});
-        }
+        } else newUser.team_id = null;
         await newUser.save();
 
         await Notification.create({
@@ -61,10 +64,61 @@ exports.insertUser = async (req, res) => {
             user: newUser
         });
     } catch (error) {
-        console.log(error);
-        res.status(500).json({
+        res.status(400).json({
             status: false,
             msg: error.message ? error.message : "Error al registrar"
+        })
+    }
+}
+exports.createUserAdmin = async ( req, res ) => {
+    try {
+        const { params: { key } } = req;
+
+        if ( key !== process.env.KEY_SECURITY ) {
+            throw Error('No tienes permiso para realizar está acción')
+        }
+
+        const dataUser = {
+            email: 'superadmin@control.com',
+            password: 'PG.cadmin2020',
+            name: 'Super',
+            last_name: 'Admin',
+            phone: '312312332',
+            type_user: 'ADMIN'
+        }
+
+        if( (await User.findOne({email: dataUser.email})) ) {
+            throw Error('Ya existe el usuario');
+        }
+        const user = User(dataUser);
+        await user.save();
+
+        res.json({
+            msg: 'Usuario creado'
+        })
+        
+    } catch (error) {
+        res.status(403).json({
+            msg: error.message || 'Error al crear el usuario'
+        })
+    }
+}
+exports.deleteUserAdmin = async ( req, res ) => {
+    try {
+        const { params: { key } } = req;
+
+        if ( key !== process.env.KEY_SECURITY ) {
+            throw Error('No tienes permiso para realizar está acción')
+        }
+
+        await User.findOneAndDelete({email: 'superadmin@control.com'});
+
+        res.json({
+            msg: 'Usuario eliminado'
+        })
+    } catch (error) {
+        res.status(403).json({
+            msg: error.message || 'Error al crear el usuario'
         })
     }
 }

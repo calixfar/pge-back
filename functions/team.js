@@ -16,3 +16,26 @@ exports.deleteMember = async (teamId, memberId) => {
         return false;
     }
 }
+exports.deleteMembersNullRef = async (teamId) => {
+    try {
+        const team = Team.find({_id: teamId}).populate('members.user');
+        const promises = team.members.map((member) => {
+            const { user } = member;
+            if( user ) return null;
+            return Team.findOneAndUpdate({_id: teamId}, {
+                $pull: {
+                    members: {
+                        _id: mongoose.Types.ObjectId(member._id)
+                    }
+                }
+            });
+        });
+
+        Promise.all([promises]);
+
+        return true;
+    } catch (error) {
+        console.log(error);
+        return false;
+    }
+}

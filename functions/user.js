@@ -22,7 +22,6 @@ exports.validateTypeUser = (typeUser, valideTypesUser) => {
 exports.userUpdateLocation = async ( userId, coords ) => {
     try {
         const { latitude, longitude } = coords;
-        console.log('in user', latitude, longitude, !latitude || !longitude);
         if( !latitude || !longitude ) return false;
         await User.findOneAndUpdate({ _id: userId }, { latitude, longitude });
         return true;

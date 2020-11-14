@@ -20,12 +20,10 @@ exports.convertErrorExpressValidator = (array) => {
         msg = `${msg} ${i == (array.length - 1) ? 
         `${array[i].msg}.` : `${array[i].msg},`}`;
     }
-    console.log('msg', msg);
     if( msg ) {
         const error = new Error();
         error.name = 'internal';
         error.message = msg.trim();
-        console.log(msg.trim(), array);
         throw error;
     }
 }

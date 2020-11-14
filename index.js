@@ -1,5 +1,5 @@
 
-const http = require("http");
+const http = require("https");
 const { app } = require('./app');
 const connectDB = require('./config/db');
 const { startSocket } = require('./sockets');
@@ -8,7 +8,7 @@ const { startSocket } = require('./sockets');
 
 const server = http.createServer(app);
 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 5000;
 
 
 startSocket(server);
